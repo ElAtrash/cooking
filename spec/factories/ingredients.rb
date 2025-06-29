@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :ingredient do
-    name { Faker::Food.ingredient.downcase }
+    sequence(:name) { |n| "#{Faker::Food.ingredient.downcase}_#{n}" }
     category { %w[produce dairy meat seafood grains spices pantry other].sample }
 
     trait :produce do
@@ -29,8 +29,5 @@ FactoryBot.define do
       category { 'spices' }
       name { %w[salt pepper garlic basil oregano thyme].sample }
     end
-
-    # Ensure unique names
-    sequence(:name) { |n| "#{Faker::Food.ingredient.downcase}_#{n}" }
   end
 end

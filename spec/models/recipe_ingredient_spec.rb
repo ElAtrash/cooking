@@ -43,7 +43,7 @@ RSpec.describe RecipeIngredient, type: :model do
 
     describe "#full_description" do
       it "combines quantity, unit, ingredient name and notes" do
-        expected = "1.5 cups #{recipe_ingredient.ingredient.name} diced"
+        expected = "1.5 cups #{recipe_ingredient.ingredient.name} (diced)"
         expect(recipe_ingredient.full_description).to eq(expected)
       end
     end
@@ -58,7 +58,7 @@ RSpec.describe RecipeIngredient, type: :model do
       duplicate = build(:recipe_ingredient, recipe: recipe, ingredient: ingredient)
 
       expect(duplicate).not_to be_valid
-      expect(duplicate.errors[:ingredient]).to include("has already been taken")
+      expect(duplicate.errors[:ingredient_id]).to include("has already been taken")
     end
   end
 end

@@ -1,6 +1,7 @@
-# app/models/recipe.rb
+# frozen-string-literal: true
+
 class Recipe < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, counter_cache: true
   has_many :recipe_ingredients, dependent: :destroy
   has_many :ingredients, through: :recipe_ingredients
   has_many :recipe_steps, dependent: :destroy
@@ -52,5 +53,10 @@ class Recipe < ApplicationRecord
     when "medium" then "bg-yellow-100 text-yellow-800"
     when "hard" then "bg-red-100 text-red-800"
     end
+  end
+
+  def update_average_rating
+    # This could be used to cache the average rating in the future
+    # For now, we calculate it on-demand in the average_rating method
   end
 end

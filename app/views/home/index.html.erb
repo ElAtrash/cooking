@@ -5,8 +5,8 @@
       <div class="flex justify-between items-center">
         <h1 class="text-2xl font-bold text-gray-900"><%= Rails.application.class.module_parent_name %></h1>
         <nav class="space-x-4">
-          <% if Current.user %>
-            <span class="text-gray-600">Welcome, <%= Current.user.email_address %></span>
+          <% if current_user %>
+            <span class="text-gray-600">Welcome, <%= current_user.email_address %></span>
             <%= link_to "Sign out", session_path, method: :delete, class: "bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700" %>
           <% else %>
             <%= link_to "Sign in", new_session_path, class: "bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700" %>
@@ -57,7 +57,7 @@
         </div>
 
         <div class="mt-12">
-          <% unless Current.user %>
+          <% unless current_user %>
             <p class="text-gray-600 mb-4">Try signing in with these test accounts:</p>
             <div class="bg-white rounded-lg shadow p-6 max-w-md mx-auto">
               <div class="space-y-2 text-sm">

@@ -9,6 +9,8 @@ class Ingredient < ApplicationRecord
     in: %w[produce dairy meat seafood grains spices pantry other]
   }
 
+  before_save :downcase_name
+
   scope :by_category, ->(category) { where(category: category) if category.present? }
   scope :search, ->(term) { where("name ILIKE ?", "%#{term}%") if term.present? }
   scope :alphabetical, -> { order(:name) }

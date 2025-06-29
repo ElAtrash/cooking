@@ -1,6 +1,6 @@
-require 'rails_helper'
+# frozen_string_literal: true
 
-RSpec.describe 'Sessions', type: :request do
+RSpec.describe SessionsController, type: :request do
   let(:user) { create(:user) }
 
   describe 'GET /session/new' do

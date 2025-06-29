@@ -1,0 +1,147 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header Section -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">Recipe Collection</h1>
+            <p class="mt-2 text-sm text-gray-600">
+              Discover and share amazing recipes with the community
+            </p>
+          </div>
+
+          <% if current_user %>
+            <div class="mt-4 sm:mt-0">
+              <%= link_to new_recipe_path,
+                  class: "inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150" do %>
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add Recipe
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flash Messages -->
+  <div id="flash_messages">
+    <%= render 'shared/flash_messages' if notice || alert %>
+  </div>
+
+  <!-- Filters and Search -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <%= form_with url: recipes_path, method: :get, local: true,
+        data: { turbo_frame: "recipes_list", turbo_action: "advance" },
+        class: "mb-8" do |form| %>
+
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+          <!-- Search Input -->
+          <div class="lg:col-span-2">
+            <%= form.text_field :search,
+                placeholder: "Search recipes...",
+                value: params[:search],
+                class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+                data: {
+                  controller: "search",
+                  search_url_value: recipes_path,
+                  action: "input->search#perform"
+                } %>
+          </div>
+
+          <!-- Difficulty Filter -->
+          <div>
+            <%= form.select :difficulty,
+                options_for_select([
+                  ['All Difficulties', ''],
+                  ['Easy', 'easy'],
+                  ['Medium', 'medium'],
+                  ['Hard', 'hard']
+                ], params[:difficulty]),
+                {},
+                {
+                  class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+                  data: { action: "change->search#perform" }
+                } %>
+          </div>
+
+          <!-- Sort Options -->
+          <div>
+            <%= form.select :sort,
+                options_for_select([
+                  ['Newest First', ''],
+                  ['Most Popular', 'popularity'],
+                  ['Highest Rated', 'rating'],
+                  ['Shortest Time', 'total_time'],
+                  ['Easiest First', 'difficulty']
+                ], params[:sort]),
+                {},
+                {
+                  class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+                  data: { action: "change->search#perform" }
+                } %>
+          </div>
+        </div>
+
+        <!-- User Filter (if authenticated) -->
+        <% if current_user %>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <%= link_to "All Recipes", recipes_path,
+                class: "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium #{'bg-indigo-100 text-indigo-800' if params[:user] != 'mine'} #{'bg-gray-100 text-gray-800' if params[:user] == 'mine'}" %>
+            <%= link_to "My Recipes", recipes_path(user: 'mine'),
+                class: "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium #{'bg-indigo-100 text-indigo-800' if params[:user] == 'mine'} #{'bg-gray-100 text-gray-800' if params[:user] != 'mine'}" %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Recipes Grid -->
+    <%= turbo_frame_tag "recipes_list" do %>
+      <div id="recipes" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <%= render partial: 'recipe_card', collection: @recipes, as: :recipe %>
+      </div>
+
+      <!-- Pagination -->
+      <% if @pagy %>
+        <div class="mt-8 flex justify-center">
+          <%= raw pagy_nav(@pagy) if @pagy.pages > 1 %>
+        </div>
+      <% end %>
+
+      <!-- Empty State -->
+      <% if @recipes.empty? %>
+        <div class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No recipes found</h3>
+          <p class="mt-1 text-sm text-gray-500">
+            <% if params[:search].present? || params[:difficulty].present? %>
+              Try adjusting your search filters.
+            <% elsif current_user %>
+              Get started by creating your first recipe.
+            <% else %>
+              Sign in to start creating recipes.
+            <% end %>
+          </p>
+          <% if current_user %>
+            <div class="mt-6">
+              <%= link_to new_recipe_path,
+                  class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" do %>
+                <svg class="-ml-1 mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                Create Recipe
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>

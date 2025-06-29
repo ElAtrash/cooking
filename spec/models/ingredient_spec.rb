@@ -7,6 +7,7 @@ RSpec.describe Ingredient, type: :model do
   end
 
   describe "validations" do
+    let!(:existing_ingredient) { create(:ingredient, name: "Salt", category: "spices") }
     it { should validate_presence_of(:name) }
     it { should validate_uniqueness_of(:name).case_insensitive }
     it { should validate_length_of(:name).is_at_most(50) }
@@ -14,18 +15,18 @@ RSpec.describe Ingredient, type: :model do
   end
 
   describe "scopes" do
-    let!(:tomato) { create(:ingredient, name: 'Tomato', category: 'produce') }
-    let!(:milk) { create(:ingredient, name: 'Milk', category: 'dairy') }
-    let!(:chicken) { create(:ingredient, name: 'Chicken', category: 'meat') }
+    let!(:tomato) { create(:ingredient, name: "Tomato", category: "produce") }
+    let!(:milk) { create(:ingredient, name: "Milk", category: "dairy") }
+    let!(:chicken) { create(:ingredient, name: "Chicken", category: "meat") }
 
-    it "filter by category" do
-      expect(Ingredient.by_category('produce')).to include(tomato)
-      expect(Ingredient.by_category('produce')).to_not include(milk)
+    it "filters by category" do
+      expect(Ingredient.by_category("produce")).to include(tomato)
+      expect(Ingredient.by_category("produce")).not_to include(milk)
     end
 
     it "searches by name" do
-      expect(Ingredient.search('tom')).to include(tomato)
-      expect(Ingredient.search('tom')).to_not include(milk)
+      expect(Ingredient.search("tom")).to include(tomato)
+      expect(Ingredient.search("tom")).not_to include(milk)
     end
 
     it "orders alphabetically" do
@@ -43,7 +44,7 @@ RSpec.describe Ingredient, type: :model do
     end
 
     describe "#category_color" do
-      it "returns a color based on the category" do
+      it "returns appropriate color for category" do
         produce_ingredient = create(:ingredient, category: "produce")
         expect(produce_ingredient.category_color).to eq("green")
 
@@ -54,7 +55,7 @@ RSpec.describe Ingredient, type: :model do
   end
 
   describe "callbacks" do
-    it "downcases the name" do
+    it "downcases name before saving" do
       ingredient = create(:ingredient, name: "GARLIC")
       expect(ingredient.name).to eq("garlic")
     end

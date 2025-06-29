@@ -12,7 +12,7 @@ class RecipeIngredient < ApplicationRecord
   scope :by_quantity, -> { order(quantity: :desc) }
 
   def display_quantity
-    quantity.to_i == quantity ? quantity.to_i.to_s : quantity.to_s
+    quantity.to_i == quantity ? quantity.to_i : quantity
   end
 
   def full_description
